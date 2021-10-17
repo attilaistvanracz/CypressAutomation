@@ -20,6 +20,8 @@ describe('My First Test', () =>
 
         cy.get("#street-1").type("aaaaaaa")
 
+        cy.get("#street-1").type("aaaaaaa")
+
         cy.end
 
         
