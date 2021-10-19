@@ -23,3 +23,53 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+/*Cypress.Commands.add('getIframe', (iframe) => {
+    return cy.get(iframe)
+        .its('0.contentDocument.body')
+        .should('be.visible')
+        .then(cy.wrap);
+})*/
+
+Cypress.Commands.add(
+    'iframeLoaded',
+    {prevSubject: 'element'},
+    ($iframe) => {
+        const contentWindow = $iframe.prop('contentWindow');
+        return new Promise(resolve => {
+            if (
+                contentWindow &&
+                contentWindow.document.readyState === 'complete'
+            ) {
+                resolve(contentWindow)
+            } else {
+                $iframe.on('load', () => {
+                    resolve(contentWindow)
+                })
+            }
+        })
+    });
+
+
+Cypress.Commands.add(
+    'getInDocument',
+    {prevSubject: 'document'},
+    (document, selector) => Cypress.$(selector, document)
+);
+
+Cypress.Commands.add(
+    'getWithinIframe',
+    (targetElement) => cy.get('iframe').iframeLoaded().its('document').getInDocument(targetElement)
+);
+
+// Access element whose parent is hidden
+/*Cypress.Commands.add('isVisible', {
+    prevSubject: true
+  }, (subject) => {
+    const isVisible = (elem) => !!(
+      elem.offsetWidth ||
+      elem.offsetHeight ||
+      elem.getClientRects().length
+    )
+    expect(isVisible(subject[0])).to.be.true
+  })*/
